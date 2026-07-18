@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>مركز السكري والغدد الصماء ببريدة — خدمات المرضى</title>
+<meta name="description" content="روابط خدمات مركز السكري والغدد الصماء ببريدة — تجمع القصيم الصحي">
+<meta name="theme-color" content="#f3ece2">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230e5c4c'/%3E%3Cpath d='M32 12l4.7 12.6L49 22l-7.6 10L49 42l-12.3-2.6L32 52l-4.7-12.6L15 42l7.6-10L15 22l12.3 2.6z' fill='%23f3ece2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,500&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Layered backdrop: building photo (optional), wash, pattern, grain -->
+<div class="backdrop" aria-hidden="true">
+  <div class="backdrop__photo"></div>
+  <div class="backdrop__wash"></div>
+  <div class="backdrop__pattern"></div>
+  <div class="backdrop__grain"></div>
+</div>
+
+<button class="lang-toggle" id="langToggle" type="button" aria-label="English">EN</button>
+
+<header class="hero">
+  <!-- The emblem is the hidden admin gesture target: 5 quick taps -->
+  <div class="emblem" id="emblem" role="img" aria-label="شعار المركز">
+    <svg viewBox="0 0 96 96" fill="none">
+      <g class="emblem__rosette">
+        <g id="petals">
+          <path d="M48 12c6.5 8.5 6.5 20.5 0 27-6.5-6.5-6.5-18.5 0-27Z"/>
+          <path d="M48 12c6.5 8.5 6.5 20.5 0 27-6.5-6.5-6.5-18.5 0-27Z" transform="rotate(72 48 48)"/>
+          <path d="M48 12c6.5 8.5 6.5 20.5 0 27-6.5-6.5-6.5-18.5 0-27Z" transform="rotate(144 48 48)"/>
+          <path d="M48 12c6.5 8.5 6.5 20.5 0 27-6.5-6.5-6.5-18.5 0-27Z" transform="rotate(216 48 48)"/>
+          <path d="M48 12c6.5 8.5 6.5 20.5 0 27-6.5-6.5-6.5-18.5 0-27Z" transform="rotate(288 48 48)"/>
+        </g>
+        <circle cx="48" cy="48" r="7.5"/>
+        <circle cx="48" cy="48" r="12.5" class="emblem__ring"/>
+      </g>
+    </svg>
+  </div>
+
+  <p class="hero__kicker" data-i18n="kicker">تجمع القصيم الصحي</p>
+  <h1 class="hero__title" data-i18n="title">مركز السكري والغدد الصماء ببريدة</h1>
+  <p class="hero__subtitle" data-i18n="subtitle">دليلك إلى خدمات المركز — اختر الخدمة التي تحتاجها</p>
+  <div class="hero__rule"><span></span><i></i><span></span></div>
+</header>
+
+<main class="links" id="links" aria-live="polite"></main>
+
+<footer class="footer">
+  <p data-i18n="footer">مركز السكري والغدد الصماء ببريدة — بتمكين من تجمع القصيم الصحي</p>
+</footer>
+
+<!-- ============ Admin layer (invisible until unlocked) ============ -->
+
+<div class="modal" id="passModal" hidden>
+  <div class="modal__card modal__card--narrow">
+    <h2 data-i18n="staffAccess">دخول الموظفين</h2>
+    <p class="modal__hint" data-i18n="staffHint">هذه الصفحة مخصصة لإدارة المركز فقط</p>
+    <form id="passForm">
+      <input type="password" id="passInput" class="field" autocomplete="current-password" data-i18n-ph="passcode" placeholder="رمز الدخول" required>
+      <p class="form-error" id="passError" hidden></p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" data-close data-i18n="cancel">إلغاء</button>
+        <button type="submit" class="btn btn--primary" data-i18n="enter">دخول</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="editModal" hidden>
+  <div class="modal__card">
+    <h2 id="editTitle" data-i18n="addLink">إضافة رابط</h2>
+    <form id="editForm">
+      <div class="field-grid">
+        <label><span data-i18n="fTitleAr">العنوان (عربي)</span>
+          <input class="field" id="fTitleAr" dir="rtl" required></label>
+        <label><span data-i18n="fTitleEn">العنوان (إنجليزي)</span>
+          <input class="field" id="fTitleEn" dir="ltr"></label>
+        <label><span data-i18n="fDescAr">وصف مختصر (عربي)</span>
+          <input class="field" id="fDescAr" dir="rtl"></label>
+        <label><span data-i18n="fDescEn">وصف مختصر (إنجليزي)</span>
+          <input class="field" id="fDescEn" dir="ltr"></label>
+        <label class="field-grid__full"><span data-i18n="fUrl">الرابط</span>
+          <input class="field" id="fUrl" dir="ltr" placeholder="https://…  |  tel:+966…  |  mailto:…" required></label>
+      </div>
+      <p class="picker-label" data-i18n="fIcon">الأيقونة</p>
+      <div class="icon-picker" id="iconPicker"></div>
+      <p class="form-error" id="editError" hidden></p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" data-close data-i18n="cancel">إلغاء</button>
+        <button type="submit" class="btn btn--primary" data-i18n="save">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="qrModal" hidden>
+  <div class="modal__card modal__card--narrow modal__card--center">
+    <h2 data-i18n="qrTitle">رمز الاستجابة السريعة</h2>
+    <p class="modal__hint" data-i18n="qrHint">اطبعه وضعه في الاستقبال والعيادات</p>
+    <img id="qrImage" class="qr-image" alt="QR code">
+    <div class="modal__actions modal__actions--center">
+      <a class="btn btn--primary" id="qrDownload" download="dec-buraydah-qr.png" data-i18n="download">تحميل</a>
+      <button type="button" class="btn btn--ghost" data-close data-i18n="close">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="passcodeModal" hidden>
+  <div class="modal__card modal__card--narrow">
+    <h2 data-i18n="changePass">تغيير رمز الدخول</h2>
+    <form id="passcodeForm">
+      <label><span data-i18n="currentPass">الرمز الحالي</span>
+        <input type="password" class="field" id="curPass" required></label>
+      <label><span data-i18n="newPass">الرمز الجديد (٦ خانات فأكثر)</span>
+        <input type="password" class="field" id="newPass" minlength="6" required></label>
+      <p class="form-error" id="passcodeError" hidden></p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" data-close data-i18n="cancel">إلغاء</button>
+        <button type="submit" class="btn btn--primary" data-i18n="save">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="admin-bar" id="adminBar" hidden>
+  <span class="admin-bar__badge" data-i18n="adminMode">وضع الإدارة</span>
+  <button class="btn btn--bar" id="btnAdd" data-i18n="addLink">إضافة رابط</button>
+  <button class="btn btn--bar" id="btnQr" data-i18n="qrTitle">رمز QR</button>
+  <button class="btn btn--bar" id="btnBackup" data-i18n="backup">نسخة احتياطية</button>
+  <button class="btn btn--bar" id="btnRestore" data-i18n="restore">استرجاع</button>
+  <button class="btn btn--bar" id="btnPasscode" data-i18n="changePass">تغيير الرمز</button>
+  <button class="btn btn--bar btn--bar-danger" id="btnLogout" data-i18n="logout">خروج</button>
+  <input type="file" id="restoreFile" accept="application/json" hidden>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

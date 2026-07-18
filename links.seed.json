@@ -1,0 +1,56 @@
+[
+  {
+    "id": "whatsapp",
+    "icon": "whatsapp",
+    "url": "https://wa.me/966500000000",
+    "title_ar": "تواصل معنا عبر واتساب",
+    "title_en": "Chat with us on WhatsApp",
+    "desc_ar": "للاستفسارات العامة والرد خلال أوقات الدوام",
+    "desc_en": "General enquiries — replies during working hours"
+  },
+  {
+    "id": "appointments",
+    "icon": "calendar",
+    "url": "https://www.sehhaty.sa",
+    "title_ar": "حجز المواعيد",
+    "title_en": "Book an Appointment",
+    "desc_ar": "احجز أو عدّل موعدك عبر تطبيق صحتي",
+    "desc_en": "Book or manage your visit through Sehhaty"
+  },
+  {
+    "id": "call",
+    "icon": "phone",
+    "url": "tel:+966163000000",
+    "title_ar": "الاتصال بالمركز",
+    "title_en": "Call the Center",
+    "desc_ar": "استقبال المركز — من الأحد إلى الخميس",
+    "desc_en": "Front desk — Sunday to Thursday"
+  },
+  {
+    "id": "location",
+    "icon": "map",
+    "url": "https://maps.google.com/?q=Diabetes+and+Endocrinology+Center+Buraydah",
+    "title_ar": "موقعنا على الخريطة",
+    "title_en": "Find Us on the Map",
+    "desc_ar": "الاتجاهات إلى المركز عبر خرائط قوقل",
+    "desc_en": "Directions to the center on Google Maps"
+  },
+  {
+    "id": "education",
+    "icon": "book",
+    "url": "https://www.moh.gov.sa/en/awarenessplateform/ChronicDisease/Pages/Diabetes.aspx",
+    "title_ar": "التثقيف الصحي عن السكري",
+    "title_en": "Diabetes Health Education",
+    "desc_ar": "مواد توعوية معتمدة من وزارة الصحة",
+    "desc_en": "Trusted awareness material from the Ministry of Health"
+  },
+  {
+    "id": "x-account",
+    "icon": "x",
+    "url": "https://x.com/QassimHealth",
+    "title_ar": "تابعنا على منصة إكس",
+    "title_en": "Follow Us on X",
+    "desc_ar": "أخبار ومستجدات تجمع القصيم الصحي",
+    "desc_en": "News and updates from Qassim Health Cluster"
+  }
+]
