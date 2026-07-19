@@ -57,13 +57,14 @@ body {
 /* Building photo — drop public/assets/building.jpg in place and it appears. */
 .backdrop__photo {
   position: absolute;
-  inset: 0 0 auto 0;
-  height: min(64vh, 560px);
+  /* Oversized so the blur's soft edge falls outside the viewport */
+  inset: -32px -32px auto;
+  height: calc(min(64vh, 560px) + 64px);
   background-image: url("assets/building.jpg");
   background-size: cover;
   background-position: center 30%;
-  filter: saturate(.9);
-  opacity: .9;
+  filter: blur(10px) saturate(.95);
+  opacity: 1;
   -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 98%);
   mask-image: linear-gradient(180deg, #000 62%, transparent 98%);
 }
