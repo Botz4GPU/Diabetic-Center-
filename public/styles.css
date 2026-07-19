@@ -142,8 +142,8 @@ body {
 /* Custom logo replaces the built-in rosette when assets/logo.png exists */
 .emblem__logo {
   display: none;
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   object-fit: contain;
 }
 
@@ -155,7 +155,13 @@ body {
 
 .emblem.has-logo .emblem__logo { display: block; }
 .emblem.has-logo svg { display: none; }
-.emblem.has-logo { filter: drop-shadow(0 10px 24px rgba(30, 90, 140, .35)); }
+.emblem.has-logo {
+  /* Light halo lifts the blue logo off the blurred sky behind it */
+  filter:
+    drop-shadow(0 0 16px rgba(255, 253, 249, .9))
+    drop-shadow(0 0 34px rgba(255, 253, 249, .6))
+    drop-shadow(0 10px 22px rgba(30, 90, 140, .25));
+}
 .emblem__rosette path, .emblem__rosette circle { fill: #f3ece2; }
 .emblem__rosette .emblem__ring { fill: none; stroke: #f3ece2; stroke-width: 1.6; opacity: .55; }
 .emblem.is-tapped { animation: emblem-pulse .3s ease; }
