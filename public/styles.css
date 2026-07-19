@@ -62,8 +62,10 @@ body {
   background-image: url("assets/building.jpg");
   background-size: cover;
   background-position: center 30%;
-  filter: saturate(.72) contrast(.95);
-  opacity: .5;
+  filter: saturate(.9);
+  opacity: .9;
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 98%);
+  mask-image: linear-gradient(180deg, #000 62%, transparent 98%);
 }
 
 .backdrop__wash {
@@ -71,12 +73,12 @@ body {
   inset: 0;
   background:
     linear-gradient(180deg,
-      rgba(243, 236, 226, .28) 0%,
-      rgba(243, 236, 226, .62) 26%,
-      rgba(243, 236, 226, .93) 46%,
-      var(--sand-100) 62%),
+      rgba(243, 236, 226, .06) 0%,
+      rgba(243, 236, 226, .22) 30%,
+      rgba(243, 236, 226, .78) 52%,
+      var(--sand-100) 66%),
     radial-gradient(120% 60% at 50% 0%,
-      rgba(14, 92, 76, .16) 0%,
+      rgba(14, 92, 76, .08) 0%,
       rgba(14, 92, 76, 0) 55%);
 }
 
@@ -175,6 +177,7 @@ body {
   font-size: clamp(1.9rem, 6.2vw, 2.8rem);
   line-height: 1.35;
   color: var(--green-900);
+  text-shadow: 0 1px 10px rgba(250, 246, 239, .9), 0 0 26px rgba(250, 246, 239, .75);
   animation: rise .7s .2s cubic-bezier(.2, .8, .3, 1) both;
 }
 
@@ -188,7 +191,8 @@ html[dir="ltr"] .hero__title {
   margin: 12px 0 0;
   font-size: .95rem;
   font-weight: 300;
-  color: var(--ink-soft);
+  color: var(--ink);
+  text-shadow: 0 1px 8px rgba(250, 246, 239, .95), 0 0 20px rgba(250, 246, 239, .8);
   animation: rise .7s .3s cubic-bezier(.2, .8, .3, 1) both;
 }
 
