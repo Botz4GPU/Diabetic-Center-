@@ -138,6 +138,24 @@ body {
 }
 
 .emblem svg { width: 64px; height: 64px; }
+
+/* Custom logo replaces the built-in rosette when assets/logo.png exists */
+.emblem__logo {
+  display: none;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.emblem.has-logo {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.emblem.has-logo .emblem__logo { display: block; }
+.emblem.has-logo svg { display: none; }
+.emblem.has-logo { filter: drop-shadow(0 10px 24px rgba(30, 90, 140, .35)); }
 .emblem__rosette path, .emblem__rosette circle { fill: #f3ece2; }
 .emblem__rosette .emblem__ring { fill: none; stroke: #f3ece2; stroke-width: 1.6; opacity: .55; }
 .emblem.is-tapped { animation: emblem-pulse .3s ease; }
