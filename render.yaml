@@ -1,0 +1,14 @@
+# Render.com blueprint — deploys the link page as a free Node web service.
+# In the Render dashboard: New + → Blueprint → pick this repository.
+services:
+  - type: web
+    name: dec-buraydah-links
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: node server.js
+    envVars:
+      - key: ADMIN_PASSCODE
+        sync: false # set your own initial admin passcode in the dashboard
+      - key: PUBLIC_URL
+        sync: false # e.g. https://dec-buraydah-links.onrender.com (used in the QR code)

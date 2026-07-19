@@ -47,8 +47,29 @@ npm start
 
 ### Deploying online (so patients can reach it)
 
-Any Node host works — [Railway](https://railway.app), [Render](https://render.com),
-Fly.io, or a machine inside the hospital. Two things to know:
+> **Note:** GitHub Pages can't host this app — Pages serves static files only,
+> and the links, admin panel, and QR code all need the Node server.
+
+The fastest path is [Render](https://render.com)'s free plan, using the
+`render.yaml` blueprint in this repo:
+
+1. Sign up at render.com with your GitHub account.
+2. **New + → Blueprint**, choose this repository and your main branch.
+3. When prompted, set `ADMIN_PASSCODE` (your initial admin passcode) and
+   `PUBLIC_URL` (leave blank the first time; after deploying, set it to the
+   `https://….onrender.com` address Render gives you so QR codes are right).
+4. Deploy. The site comes up at `https://<service-name>.onrender.com`.
+
+Free-plan caveats: the app sleeps when idle (first visit after a quiet spell
+takes ~30–60 s to wake), and the disk is **not persistent** — links edited in
+the admin panel reset to `links.seed.json` whenever the service restarts. So
+after arranging your links, download a **Backup** from the admin bar; to make
+changes permanent, restore that backup after a restart, or keep
+`links.seed.json` in the repo up to date. A paid Render disk (or any host
+with persistent storage) removes that caveat.
+
+Any other Node host works too — [Railway](https://railway.app), Fly.io, or a
+machine inside the hospital. Two things to know:
 
 - **Persistent disk**: links are stored in the `data/` folder. Choose a host
   (or plan) with persistent storage, otherwise edits are lost when the host
