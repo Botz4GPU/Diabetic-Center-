@@ -4,6 +4,9 @@
    ============================================================ */
 
 :root {
+  /* The palette is light-only; block browser "auto dark" repainting,
+     which turns the sand tones brown and hides the building photo. */
+  color-scheme: only light;
   --sand-50: #faf6ef;
   --sand-100: #f3ece2;
   --sand-200: #e9dfd0;
