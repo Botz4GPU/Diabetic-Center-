@@ -127,24 +127,30 @@ body {
 }
 
 .emblem {
-  width: 96px;
-  height: 96px;
+  width: 104px;
+  height: 104px;
   margin: 0 auto 18px;
-  border-radius: 28px;
+  border-radius: 30px;
   display: grid;
   place-items: center;
-  background: linear-gradient(160deg, var(--green-700), var(--green-900));
+  background: rgba(255, 253, 249, .9);
+  border: 1px solid rgba(201, 176, 162, .4);
+  backdrop-filter: blur(6px);
   box-shadow:
-    0 12px 30px -10px rgba(11, 68, 56, .55),
-    inset 0 1px 0 rgba(255, 255, 255, .22);
+    0 14px 34px -12px rgba(34, 50, 45, .4),
+    inset 0 1px 0 rgba(255, 255, 255, .8);
   cursor: default;
   user-select: none;
   animation: emblem-in .9s cubic-bezier(.2, .9, .25, 1.2) both;
 }
 
-.emblem svg { width: 64px; height: 64px; }
-.emblem__rosette path, .emblem__rosette circle { fill: #f3ece2; }
-.emblem__rosette .emblem__ring { fill: none; stroke: #f3ece2; stroke-width: 1.6; opacity: .55; }
+.emblem img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+
 .emblem.is-tapped { animation: emblem-pulse .3s ease; }
 
 @keyframes emblem-in {
@@ -307,6 +313,107 @@ html[dir="rtl"] .link-card:hover .link-card__chevron {
 }
 
 .links--loaded .link-card { animation-delay: calc(var(--i) * 40ms); }
+
+/* ---------------------------------------------------- link groups */
+
+.group {
+  opacity: 0;
+  animation: card-in .6s cubic-bezier(.2, .8, .3, 1) forwards;
+  animation-delay: calc(.42s + var(--i) * 70ms);
+}
+
+.links--loaded .group { animation-delay: calc(var(--i) * 40ms); }
+
+.group .link-card--group {
+  width: 100%;
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+  animation: none;
+  opacity: 1;
+}
+
+.link-card--group .link-card__chevron {
+  transform: rotate(90deg);
+  transition: transform .3s cubic-bezier(.2, .8, .3, 1), color .22s;
+}
+
+html[dir="rtl"] .link-card--group .link-card__chevron { transform: rotate(90deg); }
+
+.group.is-open .link-card--group .link-card__chevron,
+html[dir="rtl"] .group.is-open .link-card--group .link-card__chevron {
+  transform: rotate(-90deg);
+  color: var(--green-500);
+}
+
+.link-card--group:hover .link-card__chevron,
+html[dir="rtl"] .link-card--group:hover .link-card__chevron {
+  transform: rotate(90deg) translateX(2px);
+}
+
+.group.is-open .link-card--group {
+  border-color: rgba(14, 92, 76, .4);
+  box-shadow: var(--shadow-lift);
+}
+
+.group__count {
+  flex: 0 0 auto;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: .74rem;
+  font-weight: 700;
+  color: var(--green-700);
+  background: var(--green-100);
+}
+
+.group__children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .38s cubic-bezier(.2, .8, .3, 1);
+}
+
+.group.is-open .group__children { grid-template-rows: 1fr; }
+
+.group__inner {
+  overflow: hidden;
+  min-height: 0;
+  display: grid;
+  gap: 10px;
+  padding-inline-start: 18px;
+}
+
+.group__inner::before { content: ""; height: 2px; }
+
+.link-card--child {
+  opacity: 1;
+  animation: none;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 253, 249, .8);
+  border-inline-start: 3px solid var(--green-100);
+}
+
+.group.is-open .link-card--child { border-inline-start-color: var(--green-500); }
+
+.link-card--child .link-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.link-card--child .link-card__icon svg { width: 22px; height: 22px; }
+.link-card--child .link-card__title { font-size: .94rem; }
+
+.group__empty {
+  font-size: .8rem;
+  font-weight: 300;
+  color: var(--ink-soft);
+  padding: 8px 14px;
+}
 
 .links__empty {
   text-align: center;
@@ -552,6 +659,30 @@ label > span {
   margin: 12px 0 0;
   font-size: .8rem;
   color: var(--danger);
+}
+
+.group-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--green-100);
+  cursor: pointer;
+}
+
+.group-switch input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green-700);
+  cursor: pointer;
+}
+
+.group-switch__label {
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--green-900);
 }
 
 /* ---------------------------------------------------- icon picker */

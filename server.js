@@ -136,32 +136,48 @@ function throttled(ip) {
 
 const ALLOWED_SCHEMES = /^(https?:\/\/|tel:|mailto:|geo:)/i;
 const MAX_LINKS = 60;
+const MAX_CHILDREN = 40;
 const MAX_TEXT = 160;
 
 function cleanText(value) {
   return typeof value === "string" ? value.trim().slice(0, MAX_TEXT) : "";
 }
 
-function sanitizeLink(raw) {
+/* An item is either a plain link (url required) or a group of links
+   (type "group", one level deep, holds its own children). */
+function sanitizeLink(raw, depth = 0) {
   if (!raw || typeof raw !== "object") return null;
-  const url = typeof raw.url === "string" ? raw.url.trim() : "";
-  if (!ALLOWED_SCHEMES.test(url) || url.length > 500) return null;
 
-  const link = {
+  const base = {
     id: typeof raw.id === "string" && /^[\w-]{1,40}$/.test(raw.id)
       ? raw.id
       : crypto.randomBytes(6).toString("hex"),
     icon: typeof raw.icon === "string" && /^[\w-]{1,32}$/.test(raw.icon)
       ? raw.icon
       : "globe",
-    url,
     title_ar: cleanText(raw.title_ar),
     title_en: cleanText(raw.title_en),
     desc_ar: cleanText(raw.desc_ar),
     desc_en: cleanText(raw.desc_en)
   };
-  if (!link.title_ar && !link.title_en) return null;
-  return link;
+  if (!base.title_ar && !base.title_en) return null;
+
+  if (raw.type === "group") {
+    if (depth > 0) return null;
+    const children = Array.isArray(raw.children) ? raw.children : [];
+    return {
+      ...base,
+      type: "group",
+      children: children
+        .slice(0, MAX_CHILDREN)
+        .map((child) => sanitizeLink(child, depth + 1))
+        .filter(Boolean)
+    };
+  }
+
+  const url = typeof raw.url === "string" ? raw.url.trim() : "";
+  if (!ALLOWED_SCHEMES.test(url) || url.length > 500) return null;
+  return { ...base, url };
 }
 
 /* ------------------------------------------------------------------ routes */
@@ -207,7 +223,10 @@ app.post("/api/logout", (req, res) => {
 app.put("/api/links", requireAdmin, (req, res) => {
   const incoming = Array.isArray(req.body?.links) ? req.body.links : null;
   if (!incoming) return res.status(400).json({ error: "bad_request" });
-  const links = incoming.slice(0, MAX_LINKS).map(sanitizeLink).filter(Boolean);
+  const links = incoming
+    .slice(0, MAX_LINKS)
+    .map((item) => sanitizeLink(item))
+    .filter(Boolean);
   writeLinks(links);
   res.json({ links });
 });

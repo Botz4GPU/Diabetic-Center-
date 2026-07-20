@@ -78,6 +78,10 @@ const ICONS = {
   info: {
     color: "#4a6b8a",
     svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".4" fill="currentColor"/></svg>'
+  },
+  folder: {
+    color: "#0e5c4c",
+    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7Z"/><path d="M3.5 10.5h17"/></svg>'
   }
 };
 
@@ -125,8 +129,12 @@ const I18N = {
     passChanged: "تم تغيير رمز الدخول",
     weakPass: "الرمز الجديد قصير جدًا",
     confirmDelete: "حذف هذا الرابط؟",
+    confirmDeleteGroup: "حذف المجموعة وكل الروابط بداخلها؟",
     netError: "تعذر الاتصال بالخادم",
-    restoreBad: "ملف النسخة الاحتياطية غير صالح"
+    restoreBad: "ملف النسخة الاحتياطية غير صالح",
+    fGroup: "مجموعة روابط — تفتح قائمة روابط فرعية بدل رابط واحد",
+    addInside: "إضافة رابط داخل المجموعة",
+    groupEmpty: "لا توجد روابط في هذه المجموعة بعد"
   },
   en: {
     kicker: "Qassim Health Cluster",
@@ -169,8 +177,12 @@ const I18N = {
     passChanged: "Passcode changed",
     weakPass: "New passcode is too short",
     confirmDelete: "Delete this link?",
+    confirmDeleteGroup: "Delete this group and every link inside it?",
     netError: "Could not reach the server",
-    restoreBad: "Invalid backup file"
+    restoreBad: "Invalid backup file",
+    fGroup: "Link group — opens a list of sub-links instead of one link",
+    addInside: "Add link inside group",
+    groupEmpty: "No links in this group yet"
   }
 };
 
@@ -228,47 +240,92 @@ const ADMIN_GLYPHS = {
   up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 10 6 6 6-6"/></svg>',
   edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 18.5 9.5 8 20H4v-4L14.5 5.5ZM12.5 7.5l4 4"/></svg>',
-  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg>'
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
 };
+
+/* Groups the user has expanded — survives re-renders. */
+const openGroups = new Set();
+
+const primaryText = (item) =>
+  lang === "ar" ? item.title_ar || item.title_en : item.title_en || item.title_ar;
+const secondaryText = (item) =>
+  lang === "ar" ? item.desc_ar || item.desc_en : item.desc_en || item.desc_ar;
+
+function adminControls(item, index, total, parentId) {
+  if (!admin) return "";
+  const parent = parentId ? `data-parent="${esc(parentId)}"` : "";
+  const addInside = item.type === "group"
+    ? `<button class="icon-btn" data-act="add-child" data-id="${item.id}" aria-label="${esc(t("addInside"))}" title="${esc(t("addInside"))}">${ADMIN_GLYPHS.plus}</button>`
+    : "";
+  return `<span class="link-card__admin">
+      ${addInside}
+      <button class="icon-btn" data-act="up" data-id="${item.id}" ${parent} ${index === 0 ? "disabled" : ""} aria-label="up">${ADMIN_GLYPHS.up}</button>
+      <button class="icon-btn" data-act="down" data-id="${item.id}" ${parent} ${index === total - 1 ? "disabled" : ""} aria-label="down">${ADMIN_GLYPHS.down}</button>
+      <button class="icon-btn" data-act="edit" data-id="${item.id}" ${parent} aria-label="edit">${ADMIN_GLYPHS.edit}</button>
+      <button class="icon-btn icon-btn--danger" data-act="del" data-id="${item.id}" ${parent} aria-label="delete">${ADMIN_GLYPHS.trash}</button>
+    </span>`;
+}
+
+const CHEVRON =
+  '<svg class="link-card__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+
+function linkCardHTML(link, index, total, parentId) {
+  const desc = secondaryText(link);
+  const child = parentId ? " link-card--child" : "";
+  return `
+    <a class="link-card${child}" ${parentId ? "" : `style="--i:${index}"`} href="${esc(link.url)}"
+       ${/^https?:/i.test(link.url) ? 'target="_blank" rel="noopener"' : ""}
+       ${admin ? 'data-noclick="1"' : ""}>
+      ${iconTile(link.icon, "link-card__icon")}
+      <span class="link-card__text">
+        <p class="link-card__title">${esc(primaryText(link))}</p>
+        ${desc ? `<p class="link-card__desc">${esc(desc)}</p>` : ""}
+      </span>
+      ${CHEVRON}
+      ${adminControls(link, index, total, parentId)}
+    </a>`;
+}
+
+function groupCardHTML(group, index, total) {
+  const desc = secondaryText(group);
+  const children = group.children || [];
+  const isOpen = openGroups.has(group.id);
+  const inner = children.length
+    ? children.map((c, i) => linkCardHTML(c, i, children.length, group.id)).join("")
+    : `<p class="group__empty">${t("groupEmpty")}</p>`;
+  return `
+    <div class="group${isOpen ? " is-open" : ""}" style="--i:${index}" data-group-wrap="${esc(group.id)}">
+      <div class="link-card link-card--group" role="button" tabindex="0"
+           data-group="${esc(group.id)}" aria-expanded="${isOpen}">
+        ${iconTile(group.icon, "link-card__icon")}
+        <span class="link-card__text">
+          <p class="link-card__title">${esc(primaryText(group))}</p>
+          ${desc ? `<p class="link-card__desc">${esc(desc)}</p>` : ""}
+        </span>
+        <span class="group__count">${children.length}</span>
+        ${CHEVRON}
+        ${adminControls(group, index, total, null)}
+      </div>
+      <div class="group__children">
+        <div class="group__inner">${inner}</div>
+      </div>
+    </div>`;
+}
 
 function renderLinks() {
   const container = $("links");
-  const primary = (link) =>
-    lang === "ar" ? link.title_ar || link.title_en : link.title_en || link.title_ar;
-  const secondary = (link) =>
-    lang === "ar" ? link.desc_ar || link.desc_en : link.desc_en || link.desc_ar;
-
   if (!links.length) {
     container.innerHTML = `<p class="links__empty">${t("empty")}</p>`;
     return;
   }
-
   container.innerHTML = links
-    .map((link, i) => {
-      const desc = secondary(link);
-      const adminControls = admin
-        ? `<span class="link-card__admin">
-             <button class="icon-btn" data-act="up" data-id="${link.id}" ${i === 0 ? "disabled" : ""} aria-label="up">${ADMIN_GLYPHS.up}</button>
-             <button class="icon-btn" data-act="down" data-id="${link.id}" ${i === links.length - 1 ? "disabled" : ""} aria-label="down">${ADMIN_GLYPHS.down}</button>
-             <button class="icon-btn" data-act="edit" data-id="${link.id}" aria-label="edit">${ADMIN_GLYPHS.edit}</button>
-             <button class="icon-btn icon-btn--danger" data-act="del" data-id="${link.id}" aria-label="delete">${ADMIN_GLYPHS.trash}</button>
-           </span>`
-        : "";
-      return `
-      <a class="link-card" style="--i:${i}" href="${esc(link.url)}"
-         ${/^https?:/i.test(link.url) ? 'target="_blank" rel="noopener"' : ""}
-         ${admin ? 'data-noclick="1"' : ""}>
-        ${iconTile(link.icon, "link-card__icon")}
-        <span class="link-card__text">
-          <p class="link-card__title">${esc(primary(link))}</p>
-          ${desc ? `<p class="link-card__desc">${esc(desc)}</p>` : ""}
-        </span>
-        <svg class="link-card__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
-        ${adminControls}
-      </a>`;
-    })
+    .map((item, i) =>
+      item.type === "group"
+        ? groupCardHTML(item, i, links.length)
+        : linkCardHTML(item, i, links.length, null)
+    )
     .join("");
-
   requestAnimationFrame(() => container.classList.add("links--loaded"));
 }
 
@@ -417,15 +474,30 @@ $("iconPicker").addEventListener("click", (e) => {
   buildIconPicker();
 });
 
-function openEditor(link) {
+let editingParent = null;
+
+function syncGroupSwitch() {
+  const isGroup = $("fGroup").checked;
+  $("urlField").hidden = isGroup;
+  $("fUrl").required = !isGroup;
+}
+
+$("fGroup").addEventListener("change", syncGroupSwitch);
+
+function openEditor(link, parentId = null) {
   editingId = link ? link.id : null;
+  editingParent = parentId;
   $("editTitle").textContent = t(link ? "editLink" : "addLink");
   $("fTitleAr").value = link?.title_ar || "";
   $("fTitleEn").value = link?.title_en || "";
   $("fDescAr").value = link?.desc_ar || "";
   $("fDescEn").value = link?.desc_en || "";
   $("fUrl").value = link?.url || "";
-  selectedIcon = link?.icon || "globe";
+  selectedIcon = link?.icon || (link?.type === "group" ? "folder" : "globe");
+  /* Items inside a group can't themselves be groups (one level only). */
+  $("groupSwitch").hidden = Boolean(parentId);
+  $("fGroup").checked = link?.type === "group";
+  syncGroupSwitch();
   $("editError").hidden = true;
   buildIconPicker();
   openModal("editModal", () => $("fTitleAr").focus());
@@ -438,8 +510,9 @@ $("editForm").addEventListener("submit", async (e) => {
   const errorEl = $("editError");
   errorEl.hidden = true;
 
+  const isGroup = !editingParent && $("fGroup").checked;
   const url = $("fUrl").value.trim();
-  if (!/^(https?:\/\/|tel:|mailto:|geo:)/i.test(url)) {
+  if (!isGroup && !/^(https?:\/\/|tel:|mailto:|geo:)/i.test(url)) {
     errorEl.textContent = t("badUrl");
     errorEl.hidden = false;
     return;
@@ -447,7 +520,6 @@ $("editForm").addEventListener("submit", async (e) => {
   const draft = {
     id: editingId || "",
     icon: selectedIcon,
-    url,
     title_ar: $("fTitleAr").value.trim(),
     title_en: $("fTitleEn").value.trim(),
     desc_ar: $("fDescAr").value.trim(),
@@ -458,45 +530,106 @@ $("editForm").addEventListener("submit", async (e) => {
     errorEl.hidden = false;
     return;
   }
+  if (isGroup) {
+    draft.type = "group";
+  } else {
+    draft.url = url;
+  }
+
+  const list = editingParent
+    ? (links.find((l) => l.id === editingParent) || {}).children
+    : links;
+  if (!list) return;
 
   if (editingId) {
-    links = links.map((l) => (l.id === editingId ? { ...l, ...draft } : l));
+    const index = list.findIndex((l) => l.id === editingId);
+    if (index >= 0) {
+      const existing = list[index];
+      if (existing.type === "group" && isGroup) {
+        draft.children = existing.children || [];
+      } else if (existing.type === "group" && !isGroup) {
+        /* Turning a group back into a plain link discards its children. */
+        if ((existing.children || []).length && !confirm(t("confirmDeleteGroup"))) {
+          return;
+        }
+      } else if (isGroup) {
+        draft.children = [];
+      }
+      list[index] = { ...draft, id: editingId };
+    }
   } else {
-    links = [...links, draft];
+    if (isGroup) draft.children = [];
+    list.push(draft);
   }
   closeModal("editModal");
   await saveLinks(t("saved"));
 });
 
-/* Card admin buttons: reorder / edit / delete. */
+/* Card admin buttons (top level and inside groups) + group toggling. */
+
+function toggleGroup(id) {
+  const wrap = document.querySelector(`[data-group-wrap="${CSS.escape(id)}"]`);
+  if (!wrap) return;
+  const nowOpen = !openGroups.has(id);
+  if (nowOpen) openGroups.add(id);
+  else openGroups.delete(id);
+  wrap.classList.toggle("is-open", nowOpen);
+  wrap.querySelector("[data-group]").setAttribute("aria-expanded", nowOpen);
+}
 
 $("links").addEventListener("click", async (e) => {
   const btn = e.target.closest("[data-act]");
   if (btn) {
     e.preventDefault();
-    const { act, id } = btn.dataset;
-    const index = links.findIndex((l) => l.id === id);
-    if (index < 0) return;
+    e.stopPropagation();
+    const { act, id, parent } = btn.dataset;
+    const list = parent
+      ? (links.find((l) => l.id === parent) || {}).children
+      : links;
+    if (!list) return;
+    const index = list.findIndex((l) => l.id === id);
+    if (index < 0 && act !== "add-child") return;
 
     if (act === "up" && index > 0) {
-      [links[index - 1], links[index]] = [links[index], links[index - 1]];
+      [list[index - 1], list[index]] = [list[index], list[index - 1]];
       await saveLinks();
-    } else if (act === "down" && index < links.length - 1) {
-      [links[index + 1], links[index]] = [links[index], links[index + 1]];
+    } else if (act === "down" && index < list.length - 1) {
+      [list[index + 1], list[index]] = [list[index], list[index + 1]];
       await saveLinks();
     } else if (act === "edit") {
-      openEditor(links[index]);
+      openEditor(list[index], parent || null);
+    } else if (act === "add-child") {
+      openGroups.add(id);
+      openEditor(null, id);
     } else if (act === "del") {
-      if (confirm(t("confirmDelete"))) {
-        links.splice(index, 1);
+      const isGroup = list[index].type === "group";
+      if (confirm(t(isGroup ? "confirmDeleteGroup" : "confirmDelete"))) {
+        list.splice(index, 1);
         await saveLinks(t("deleted"));
       }
     }
     return;
   }
+
+  const groupCard = e.target.closest("[data-group]");
+  if (groupCard) {
+    e.preventDefault();
+    toggleGroup(groupCard.dataset.group);
+    return;
+  }
+
   /* In admin mode the whole card shouldn't navigate away accidentally. */
   const card = e.target.closest("[data-noclick]");
   if (card) e.preventDefault();
+});
+
+$("links").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const groupCard = e.target.closest("[data-group]");
+  if (groupCard) {
+    e.preventDefault();
+    toggleGroup(groupCard.dataset.group);
+  }
 });
 
 /* ---------------------------------------------------------- QR / passcode */

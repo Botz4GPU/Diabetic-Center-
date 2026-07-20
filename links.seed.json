@@ -38,11 +38,31 @@
   {
     "id": "education",
     "icon": "book",
-    "url": "https://www.moh.gov.sa/en/awarenessplateform/ChronicDisease/Pages/Diabetes.aspx",
+    "type": "group",
     "title_ar": "التثقيف الصحي عن السكري",
     "title_en": "Diabetes Health Education",
-    "desc_ar": "مواد توعوية معتمدة من وزارة الصحة",
-    "desc_en": "Trusted awareness material from the Ministry of Health"
+    "desc_ar": "مواد توعوية — اضغط لعرض القائمة",
+    "desc_en": "Awareness material — tap to view the list",
+    "children": [
+      {
+        "id": "edu-moh-diabetes",
+        "icon": "document",
+        "url": "https://www.moh.gov.sa/en/awarenessplateform/ChronicDisease/Pages/Diabetes.aspx",
+        "title_ar": "ما هو مرض السكري؟",
+        "title_en": "What is Diabetes?",
+        "desc_ar": "من المنصة التوعوية لوزارة الصحة",
+        "desc_en": "From the MOH awareness platform"
+      },
+      {
+        "id": "edu-moh-platform",
+        "icon": "heart",
+        "url": "https://www.moh.gov.sa/en/awarenessplateform/Pages/default.aspx",
+        "title_ar": "المنصة التوعوية لوزارة الصحة",
+        "title_en": "MOH Health Awareness Platform",
+        "desc_ar": "مكتبة التثقيف الصحي الكاملة",
+        "desc_en": "The full health education library"
+      }
+    ]
   },
   {
     "id": "x-account",
